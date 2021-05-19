@@ -1,12 +1,28 @@
-﻿using System;
+﻿
+using Fuel_Georgia_Parser.Utils;
+using Env = Fuel_Georgia_Parser.Utils.EnvironmentHelper;
+using System;
+using System.IO;
 
-namespace Fuel_Georgia_Parser
+string repoName = Env.GetRepoName(out var userName);
+string token = Env.GetEnvVariable("GH_TOKEN", required: true);
+string branch = Env.GetEnvVariable("BRANCH", required: true);
+
+
+RepoHelper repo = new()
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
-        }
-    }
-}
+    Branch = branch,
+    UserName = userName,
+    LineOutput = Console.WriteLine,
+    RepoName = repoName,
+    Token = token
+};
+
+repo.Clone();
+
+Directory.SetCurrentDirectory(repoName);
+
+File.WriteAllText("test.txt", "Test text");
+
+repo.CommitAndPush("Test commit");
+
