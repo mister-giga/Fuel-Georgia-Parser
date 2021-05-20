@@ -27,7 +27,7 @@ namespace Fuel_Georgia_Parser.Services
         }
 
         static string GetCompaniesFilePath() => Path.Combine(RootPath, "companies.json");
-        public static Company[] GetCompanies() => GetDataOrDefault(GetCompaniesFilePath(), new Company[0]);
+        public static Company[] GetCompanies() => GetDataOrDefault(GetCompaniesFilePath(), Array.Empty<Company>());
         public static void SetCompanies(Company[] companies) => SetData(GetCompaniesFilePath(), companies);
 
         static T GetDataOrDefault<T>(string path, T def)
