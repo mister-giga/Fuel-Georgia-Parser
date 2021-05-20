@@ -1,12 +1,12 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 FROM mcr.microsoft.com/dotnet/runtime:5.0 AS base
-RUN dotnet --version
-#RUN apk add --no-cache git
-#RUN apk add --no-cache tree
+RUN apk add --no-cache git
+RUN apk add --no-cache tree
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build
+RUN dotnet --version
 WORKDIR /src
 COPY ["Fuel-Georgia-Parser.csproj", "."]
 RUN dotnet restore "./Fuel-Georgia-Parser.csproj"
