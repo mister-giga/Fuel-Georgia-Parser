@@ -1,5 +1,4 @@
-﻿
-using Fuel_Georgia_Parser.Utils;
+﻿using Fuel_Georgia_Parser.Utils;
 using Env = Fuel_Georgia_Parser.Utils.EnvironmentHelper;
 using System;
 using System.IO;
@@ -12,7 +11,6 @@ using System.Collections.Generic;
 string repoName = Env.GetRepoName(out var userName);
 string token = Env.GetEnvVariable("GH_TOKEN", required: true);
 string branch = Env.GetEnvVariable("BRANCH", required: true);
-
 
 RepoHelper repo = new()
 {
@@ -27,24 +25,23 @@ repo.Clone();
 
 Directory.SetCurrentDirectory(repoName);
 
-//var parsers = new CompanyDataParserBase[] {
-//    new LukoilDataParser(),
-//    new WissolDataParser()
-//};
+var parsers = new CompanyDataParserBase[] {
+    new WissolDataParser(),
+    new LukoilDataParser(),
+    new RompetrolDataParser()
+};
 
-//var companiesLocalData = LocalDataRepository.GetCompanies();
+var companiesLocalData = LocalDataRepository.GetCompanies();
 
-//var companiesFreshData = await Task.WhenAll(parsers.Select(p => GetFreshCompanyDataAsync(companiesLocalData.FirstOrDefault(x => x.Key == p.CompanyKey), p)));
+var companiesFreshData = await Task.WhenAll(parsers.Select(p => GetFreshCompanyDataAsync(companiesLocalData.FirstOrDefault(x => x.Key == p.CompanyKey), p)));
 
 
-//LocalDataRepository.SetCompanies(companiesFreshData.Select(x => x.company).ToArray());
+LocalDataRepository.SetCompanies(companiesFreshData.Select(x => x.company).ToArray());
 
 
 repo.CommitAndPush("Test commit");
 
-#if DEBUG
-var exists = Directory.Exists("./");
-Console.WriteLine(exists);
+#if DEBUG //cleanup
 if(Directory.Exists("./"))
     Directory.Delete("./", true);
 #endif
@@ -52,6 +49,7 @@ if(Directory.Exists("./"))
 
 async Task<(Company company, string[] priceChangedFuelKeys)> GetFreshCompanyDataAsync(Company old, CompanyDataParserBase parser)
 {
+    Console.WriteLine($"Get fresh compnay data started for {parser.CompanyKey}");
     HashSet<string> stablePriceFuelKeys = new HashSet<string>();
     var activeFuels = await parser.GetActiveFuelsAsync();
 
@@ -67,7 +65,10 @@ async Task<(Company company, string[] priceChangedFuelKeys)> GetFreshCompanyData
                 if(priceFiff != 0)
                     activeFuel.Change = priceFiff;
                 else
+                {
+                    activeFuel.Change = oldFuel.Change;
                     stablePriceFuelKeys.Add(activeFuel.Key);
+                }
             }
         }
     }
@@ -79,5 +80,6 @@ async Task<(Company company, string[] priceChangedFuelKeys)> GetFreshCompanyData
         Fuels = activeFuels,
     };
 
+    Console.WriteLine($"Get fresh compnay data ended for {parser.CompanyKey}");
     return (company: newData, priceChangedFuelKeys: activeFuels.Select(x => x.Key).ToHashSet().Except(stablePriceFuelKeys).ToArray());
 }
