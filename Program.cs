@@ -11,6 +11,7 @@ using System.Collections.Generic;
 string repoName = Env.GetRepoName(out var userName);
 string token = Env.GetEnvVariable("GH_TOKEN", required: true);
 string branch = Env.GetEnvVariable("BRANCH", required: true);
+Directory.CreateDirectory(LocalDataRepository.RootPath = Env.GetEnvVariable("DIR", "data"));
 
 RepoHelper repo = new()
 {

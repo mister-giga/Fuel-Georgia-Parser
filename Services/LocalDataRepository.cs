@@ -14,6 +14,7 @@ namespace Fuel_Georgia_Parser.Services
     static class LocalDataRepository
     {
         private static readonly JsonSerializerOptions options;
+        public static string RootPath;
 
         static LocalDataRepository()
         {
@@ -25,7 +26,7 @@ namespace Fuel_Georgia_Parser.Services
             };
         }
 
-        static string GetCompaniesFilePath() => Path.Combine("data", "companies.json");
+        static string GetCompaniesFilePath() => Path.Combine(RootPath, "companies.json");
         public static Company[] GetCompanies() => GetDataOrDefault(GetCompaniesFilePath(), new Company[0]);
         public static void SetCompanies(Company[] companies) => SetData(GetCompaniesFilePath(), companies);
 
