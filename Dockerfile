@@ -2,6 +2,7 @@
 
 FROM mcr.microsoft.com/dotnet/runtime:5.0-alpine AS base
 RUN apk add --no-cache git
+RUN apk add --no-cache tree
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build
@@ -18,4 +19,5 @@ RUN dotnet publish "Fuel-Georgia-Parser.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+RUN tree /
 ENTRYPOINT ["dotnet", "Fuel-Georgia-Parser.dll"]
