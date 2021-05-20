@@ -19,5 +19,7 @@ RUN dotnet publish "Fuel-Georgia-Parser.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-RUN tree /
+RUN pwd
+RUN ls -a
+RUN tree /app
 ENTRYPOINT ["dotnet", "Fuel-Georgia-Parser.dll"]
