@@ -11,7 +11,7 @@ using System.Collections.Generic;
 string repoName = Env.GetRepoName(out var userName);
 string token = Env.GetEnvVariable("INPUT_GH_TOKEN", required: true);
 string branch = Env.GetEnvVariable("INPUT_BRANCH", required: true);
-Directory.CreateDirectory(LocalDataRepository.RootPath = Env.GetEnvVariable("INPUT_DIR", "data"));
+LocalDataRepository.RootPath = Env.GetEnvVariable("INPUT_DIR", "data");
 
 RepoHelper repo = new()
 {
@@ -25,6 +25,7 @@ RepoHelper repo = new()
 repo.Clone();
 
 Directory.SetCurrentDirectory(repoName);
+Directory.CreateDirectory(LocalDataRepository.RootPath);
 
 var parsers = new CompanyDataParserBase[] {
     new WissolDataParser(),
