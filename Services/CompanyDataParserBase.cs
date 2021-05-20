@@ -13,7 +13,6 @@ namespace Fuel_Georgia_Parser.Services
         public abstract string CompanyName { get; }
         public abstract Task<Location[]> GetLocationsAsync();
         public abstract Task<Fuel[]> GetActiveFuelsAsync();
-        public abstract Task<Dictionary<string, PricePoint>> GetFuelsPricePointsAsync();
 
         readonly static char[] validChars;
         readonly static Dictionary<char, char> charMappings;

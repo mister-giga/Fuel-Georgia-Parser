@@ -39,14 +39,24 @@ namespace Fuel_Georgia_Parser.Services
             }).ToArray();
         }
 
-        public override Task<Dictionary<string, PricePoint>> GetFuelsPricePointsAsync()
+        public override async Task<Location[]> GetLocationsAsync()
         {
-            throw new NotImplementedException();
+            var json = await new HttpClient().GetStringAsync("https://www.rompetrol.ge/routeplanner/stations?language_id=1");
+            var data = System.Text.Json.JsonSerializer.Deserialize<List<LocationModel>>(json);
+            return data.Select(x => new Location
+            {
+                Lat = x.lat,
+                Lng = x.lng,
+                Address = $"{x.address}, {x.city}"
+            }).ToArray();
         }
 
-        public override Task<Location[]> GetLocationsAsync()
+        class LocationModel
         {
-            throw new NotImplementedException();
+            public double lat { get; set; }
+            public double lng { get; set; }
+            public string city { get; set; }
+            public string address { get; set; }
         }
     }
 }

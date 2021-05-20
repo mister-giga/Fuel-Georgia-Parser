@@ -11,7 +11,7 @@ using System.Collections.Generic;
 string repoName = Env.GetRepoName(out var userName);
 string token = Env.GetEnvVariable("INPUT_GH_TOKEN", required: true);
 string branch = Env.GetEnvVariable("INPUT_BRANCH", required: true);
-LocalDataRepository.RootPath = Env.GetEnvVariable("INPUT_DIR", "data");
+DataAccessOptions.RootPath = Env.GetEnvVariable("INPUT_DIR", "data");
 
 RepoHelper repo = new()
 {
@@ -25,7 +25,7 @@ RepoHelper repo = new()
 repo.Clone();
 
 Directory.SetCurrentDirectory(repoName);
-Directory.CreateDirectory(LocalDataRepository.RootPath);
+Directory.CreateDirectory(DataAccessOptions.RootPath);
 
 var parsers = new CompanyDataParserBase[] {
     new WissolDataParser(),
@@ -33,12 +33,14 @@ var parsers = new CompanyDataParserBase[] {
     new RompetrolDataParser()
 };
 
-var companiesLocalData = LocalDataRepository.GetCompanies();
+var companiesDataAccess = new CompaniesDataAccess();
+
+var companiesLocalData = companiesDataAccess.Data;
 
 var companiesFreshData = await Task.WhenAll(parsers.Select(p => GetFreshCompanyDataAsync(companiesLocalData.FirstOrDefault(x => x.Key == p.CompanyKey), p)));
 
 
-LocalDataRepository.SetCompanies(companiesFreshData.Select(x => x.company).ToArray());
+companiesDataAccess.Data = companiesFreshData.Select(x => x.company).ToArray();
 
 
 repo.CommitAndPush("Test commit");

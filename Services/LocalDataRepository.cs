@@ -11,38 +11,45 @@ using System.Threading.Tasks;
 
 namespace Fuel_Georgia_Parser.Services
 {
-    static class LocalDataRepository
+    public static class DataAccessOptions
     {
-        private static readonly JsonSerializerOptions options;
+        public static readonly JsonSerializerOptions JsonSerializerOptions;
         public static string RootPath;
 
-        static LocalDataRepository()
+        static DataAccessOptions()
         {
-            options = new JsonSerializerOptions 
+            JsonSerializerOptions = new JsonSerializerOptions
             {
                 WriteIndented = true,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
             };
         }
-
-        static string GetCompaniesFilePath() => Path.Combine(RootPath, "companies.json");
-        public static Company[] GetCompanies() => GetDataOrDefault(GetCompaniesFilePath(), Array.Empty<Company>());
-        public static void SetCompanies(Company[] companies) => SetData(GetCompaniesFilePath(), companies);
-
-        static T GetDataOrDefault<T>(string path, T def)
+    }
+    abstract class DataAccess<T> where T : class, new()
+    {
+        protected abstract string GetPath();
+        public virtual T[] GetDefault() => Array.Empty<T>();
+        public T[] Data
         {
-            var res = def;
-
-            if(File.Exists(path))
+            get
             {
-                var json = File.ReadAllText(path);
-                res = JsonSerializer.Deserialize<T>(json, options);
+                if(File.Exists(GetPath()))
+                {
+                    var json = File.ReadAllText(GetPath());
+                    return JsonSerializer.Deserialize<T[]>(json, DataAccessOptions.JsonSerializerOptions);
+                }
+                else
+                {
+                    return GetDefault();
+                }
             }
-
-            return res;
+            set => File.WriteAllText(GetPath(), JsonSerializer.Serialize(value, DataAccessOptions.JsonSerializerOptions));
         }
+    }
 
-        static void SetData<T>(string path, T data) => File.WriteAllText(path, JsonSerializer.Serialize(data, options));
+    class CompaniesDataAccess : DataAccess<Company>
+    {
+        protected override string GetPath() => Path.Combine(DataAccessOptions.RootPath, "companies.json");
     }
 }

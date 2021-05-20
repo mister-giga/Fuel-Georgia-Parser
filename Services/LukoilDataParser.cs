@@ -38,11 +38,6 @@ namespace Fuel_Georgia_Parser.Services
             }).ToArray();
         }
 
-        public override Task<Dictionary<string, PricePoint>> GetFuelsPricePointsAsync()
-        {
-            throw new NotImplementedException();
-        }
-
         public override Task<Location[]> GetLocationsAsync()
         {
             throw new NotImplementedException();
