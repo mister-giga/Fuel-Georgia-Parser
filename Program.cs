@@ -52,7 +52,7 @@ if(Directory.Exists("./"))
 async Task<(Company company, string[] priceChangedFuelKeys)> GetFreshCompanyDataAsync(Company old, CompanyDataParserBase parser)
 {
     Console.WriteLine($"Get fresh compnay data started for {parser.CompanyKey}");
-    HashSet<string> stablePriceFuelKeys = new HashSet<string>();
+    HashSet<string> stablePriceFuelKeys = new();
     var activeFuels = await parser.GetActiveFuelsAsync();
 
     if(old?.Fuels?.Any() == true)

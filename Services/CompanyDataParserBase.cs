@@ -58,11 +58,11 @@ namespace Fuel_Georgia_Parser.Services
                 { ' ', '_' }
             };
         }
-        protected string ConvertFuelNameToKey(string fuelName)
+        protected static string ConvertFuelNameToKey(string fuelName)
         {
             return new string(MapAndFilter(fuelName).ToArray());
 
-            IEnumerable<char> MapAndFilter(IEnumerable<char> chars)
+            static IEnumerable<char> MapAndFilter(IEnumerable<char> chars)
             {
                 foreach(var c in chars)
                 {
