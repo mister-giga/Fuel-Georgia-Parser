@@ -1,0 +1,24 @@
+name: 'Georgian Fuel Data Storage'
+description: 'Parse Georgian fuel company data sources to keep track of fuel listings with prices'
+author: Giga Bokuchava
+branding:
+  icon: activity
+  color: orange
+inputs:
+  GH_TOKEN:
+    description:
+      'GitHub token to pull and push repository'
+    required: true
+  BRANCH:
+    description:
+      'The branch name to work with'
+    required: false
+    default: 'main'
+  DIR:
+    description:
+      'The root directory to work from.'
+    required: false
+    default: 'data'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
