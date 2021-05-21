@@ -6,19 +6,24 @@ branding:
   color: orange
 inputs:
   GH_TOKEN:
-    description:
-      'GitHub token to pull and push repository'
+    description: 'GitHub token to pull and push repository'
     required: true
   BRANCH:
-    description:
-      'The branch name to work with'
+    description: 'The branch name to work with'
     required: false
     default: 'main'
   DIR:
-    description:
-      'The root directory to work from.'
+    description: 'The root directory to work from.'
     required: false
     default: 'data'
+  UPDATE_PRICES:
+    description: 'Update price listing of fuels or not'
+    required: false
+    default: true
+  UPDATE_LOCATIONS:
+    description: 'Update station locations or not'
+    required: false
+    default: false
 runs:
   using: 'docker'
   image: 'Dockerfile'
