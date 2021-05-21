@@ -15,7 +15,7 @@ namespace Fuel_Georgia_Parser.Services
 
         public override string CompanyName => "რომპეტროლი";
 
-        public override string CompanyColor => "FF9914";
+        public override string CompanyColor => "#FF9914";
 
         public override async Task<Fuel[]> GetActiveFuelsAsync()
         {

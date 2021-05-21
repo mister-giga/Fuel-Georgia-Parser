@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Fuel_Georgia_Parser.Services
@@ -79,6 +80,11 @@ namespace Fuel_Georgia_Parser.Services
                     }
                 }
             }
+        }
+
+        protected static string StripHTML(string input)
+        {
+            return Regex.Replace(input, "<.*?>", String.Empty);
         }
     }
 }

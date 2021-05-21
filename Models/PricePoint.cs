@@ -10,6 +10,5 @@ namespace Fuel_Georgia_Parser.Models
     {
         public DateTime Date { get; set; }
         public decimal Price { get; set; }
-        public decimal Change { get; set; }
     }
 }

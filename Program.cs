@@ -34,7 +34,8 @@ Directory.CreateDirectory(DataAccessOptions.RootPath);
 var parsers = new CompanyDataParserBase[] {
     new WissolDataParser(),
     new LukoilDataParser(),
-    new RompetrolDataParser()
+    new RompetrolDataParser(),
+    new GulfDataParser(),
 };
 
 if(updatePrices)
@@ -59,7 +60,6 @@ if(updatePrices)
             fuelPriceChangesDataAccess.Data = fuelPriceChangesDataAccess.Data.Append(new PricePoint
             {
                 Price = currentFuelStatus.Price,
-                Change = currentFuelStatus.Change,
                 Date = DateTime.UtcNow
             }).ToArray();
         }
@@ -93,38 +93,47 @@ await FaultColletor.Instance.UploadAsync();
 async Task<(Company company, string[] priceChangedFuelKeys)> GetFreshCompanyDataAsync(Company old, CompanyDataParserBase parser)
 {
     Console.WriteLine($"Get fresh compnay data started for {parser.CompanyKey}");
-    HashSet<string> stablePriceFuelKeys = new();
-    var activeFuels = await parser.GetActiveFuelsAsync();
-
-    if(old?.Fuels?.Any() == true)
+    try
     {
-        foreach(var activeFuel in activeFuels)
-        {
-            var oldFuel = old.Fuels.FirstOrDefault(f => f.Key == activeFuel.Key);
-            if(oldFuel != null)
-            {
-                var priceFiff = activeFuel.Price - oldFuel.Price;
+        HashSet<string> stablePriceFuelKeys = new();
+        var activeFuels = await parser.GetActiveFuelsAsync();
 
-                if(priceFiff != 0)
-                    activeFuel.Change = priceFiff;
-                else
+        if(old?.Fuels?.Any() == true)
+        {
+            foreach(var activeFuel in activeFuels)
+            {
+                var oldFuel = old.Fuels.FirstOrDefault(f => f.Key == activeFuel.Key);
+                if(oldFuel != null)
                 {
-                    activeFuel.Change = oldFuel.Change;
-                    stablePriceFuelKeys.Add(activeFuel.Key);
+                    var priceFiff = activeFuel.Price - oldFuel.Price;
+
+                    if(priceFiff != 0)
+                        activeFuel.Change = priceFiff;
+                    else
+                    {
+                        activeFuel.Change = oldFuel.Change;
+                        stablePriceFuelKeys.Add(activeFuel.Key);
+                    }
                 }
             }
         }
+
+        var newData = new Company
+        {
+            Key = parser.CompanyKey,
+            Name = parser.CompanyName,
+            Fuels = activeFuels,
+        };
+
+        Console.WriteLine($"Get fresh compnay data ended for {parser.CompanyKey}");
+        return (company: newData, priceChangedFuelKeys: activeFuels.Select(x => x.Key).ToHashSet().Except(stablePriceFuelKeys).ToArray());
     }
-
-    var newData = new Company
+    catch(Exception ex)
     {
-        Key = parser.CompanyKey,
-        Name = parser.CompanyName,
-        Fuels = activeFuels,
-    };
-
-    Console.WriteLine($"Get fresh compnay data ended for {parser.CompanyKey}");
-    return (company: newData, priceChangedFuelKeys: activeFuels.Select(x => x.Key).ToHashSet().Except(stablePriceFuelKeys).ToArray());
+        FaultColletor.Instance.Register($"{parser.GetType().FullName}.GetActiveFuelsAsync() - {parser.CompanyName}", ex, "prices", parser.CompanyKey);
+        Console.WriteLine($"Get fresh compnay data faulted for {parser.CompanyKey}");
+        return (company: old, priceChangedFuelKeys: Array.Empty<string>());
+    }
 }
 
 async Task UpdateLocationAsync(CompanyDataParserBase parser)
