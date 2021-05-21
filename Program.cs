@@ -60,7 +60,12 @@ if(updatePrices)
 
             if(currentFuelStatus.Change == 0 && lastPrice != null)
             {
-                    currentFuelStatus.Change = currentFuelStatus.Price - lastPrice.Price;
+                currentFuelStatus.Change = currentFuelStatus.Price - lastPrice.Price;
+                if(currentFuelStatus.Change == 0 && fuelPriceHistory.Length >= 2)
+                {
+                    var secondFromLast = fuelPriceHistory[fuelPriceHistory.Length - 2];
+                    currentFuelStatus.Change = currentFuelStatus.Price - secondFromLast.Price;
+                }
             }
 
             if(lastPrice?.Price != currentFuelStatus.Price)
