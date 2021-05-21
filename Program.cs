@@ -96,7 +96,7 @@ if(updateLocations)
 
 
 
-repo.CommitAndPush("Test commit");
+repo.CommitAndPush("Data updated");
 
 #if DEBUG //cleanup
 if(Directory.Exists("./"))
