@@ -36,6 +36,7 @@ var parsers = new CompanyDataParserBase[] {
     new LukoilDataParser(),
     new RompetrolDataParser(),
     new GulfDataParser(),
+    new SocarDataParser(),
 };
 
 if(updatePrices)
@@ -47,23 +48,34 @@ if(updatePrices)
 
     var companiesFreshData = await Task.WhenAll(parsers.Select(p => GetFreshCompanyDataAsync(companiesLocalData.FirstOrDefault(x => x.Key == p.CompanyKey), p)));
 
-
-    companiesDataAccess.Data = companiesFreshData.Select(x => x.company).ToArray();
-
-
     foreach(var companyFreshData in companiesFreshData)
     {
         foreach(var priceChangeFuelKey in companyFreshData.priceChangedFuelKeys)
         {
             var fuelPriceChangesDataAccess = new FuelPriceChangesDataAccess(companyFreshData.company.Key, priceChangeFuelKey);
+            var fuelPriceHistory = fuelPriceChangesDataAccess.Data;
+
             var currentFuelStatus = companyFreshData.company.Fuels.First(x => x.Key == priceChangeFuelKey);
-            fuelPriceChangesDataAccess.Data = fuelPriceChangesDataAccess.Data.Append(new PricePoint
+            var lastPrice = fuelPriceHistory.LastOrDefault();
+
+            if(currentFuelStatus.Change == 0 && lastPrice != null)
             {
-                Price = currentFuelStatus.Price,
-                Date = DateTime.UtcNow
-            }).ToArray();
+                    currentFuelStatus.Change = currentFuelStatus.Price - lastPrice.Price;
+            }
+
+            if(lastPrice?.Price != currentFuelStatus.Price)
+            {
+                fuelPriceChangesDataAccess.Data = fuelPriceHistory.Append(new PricePoint
+                {
+                    Price = currentFuelStatus.Price,
+                    Date = DateTime.UtcNow
+                }).ToArray();
+            }
         }
     }
+
+
+    companiesDataAccess.Data = companiesFreshData.Select(x => x.company).ToArray();
 
     Console.WriteLine("Complete update prices");
 }
@@ -123,6 +135,7 @@ async Task<(Company company, string[] priceChangedFuelKeys)> GetFreshCompanyData
             Key = parser.CompanyKey,
             Name = parser.CompanyName,
             Fuels = activeFuels,
+            Color = parser.CompanyColor
         };
 
         Console.WriteLine($"Get fresh compnay data ended for {parser.CompanyKey}");
