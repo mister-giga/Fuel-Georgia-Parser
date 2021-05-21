@@ -79,8 +79,11 @@ if(updatePrices)
         }
     }
 
+    var freshCompanies = companiesFreshData.Select(x => x.company).ToArray();
 
-    companiesDataAccess.Data = companiesFreshData.Select(x => x.company).ToArray();
+    ReadmeUpdater.UpdatePricing(freshCompanies, userName, repoName, branch);
+
+    companiesDataAccess.Data = freshCompanies;
 
     Console.WriteLine("Complete update prices");
 }
