@@ -14,6 +14,8 @@ namespace Fuel_Georgia_Parser.Services
 
         public override string CompanyName => "ვისოლი";
 
+        public override string CompanyColor => "00A651";
+
         public override async Task<Fuel[]> GetActiveFuelsAsync()
         {
             var json = await new HttpClient().GetStringAsync("http://wissol.ge/adminarea/api/ajaxapi/get_fuel_prices?lang=geo");
@@ -27,15 +29,31 @@ namespace Fuel_Georgia_Parser.Services
             }).ToArray();
         }
 
-        public override Task<Location[]> GetLocationsAsync()
+        public async override Task<Location[]> GetLocationsAsync()
         {
-            throw new NotImplementedException();
+            var json = await new HttpClient().GetStringAsync("http://wissol.ge/adminarea/api/ajaxapi/map?lang=geo");
+            var fuels = System.Text.Json.JsonSerializer.Deserialize<List<LocatonModel>>(json);
+
+            return fuels.Select(x => new Location
+            {
+                Address = $"{x.address}, {x.city}",
+                Lat = double.Parse(x.lat),
+                Lng = double.Parse(x.lng)
+            }).ToArray();
         }
 
         class FuelModel
         {
             public string fuel_name { get; set; }
             public string fuel_price { get; set; }
+        }
+
+        class LocatonModel
+        {
+            public string address { get; set; }
+            public string lat { get; set; }
+            public string lng { get; set; }
+            public string city { get; set; }
         }
     }
 }

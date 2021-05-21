@@ -2,9 +2,12 @@
 using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace Fuel_Georgia_Parser.Services
 {
@@ -13,6 +16,8 @@ namespace Fuel_Georgia_Parser.Services
         public override string CompanyKey => "lukoil";
 
         public override string CompanyName => "ლუკოილი";
+
+        public override string CompanyColor => "DE1A22";
 
         public override async Task<Fuel[]> GetActiveFuelsAsync()
         {
@@ -38,9 +43,38 @@ namespace Fuel_Georgia_Parser.Services
             }).ToArray();
         }
 
-        public override Task<Location[]> GetLocationsAsync()
+        public override async Task<Location[]> GetLocationsAsync()
         {
-            throw new NotImplementedException();
+            var xml = await new HttpClient().GetStringAsync("http://www.lukoil.ge/gmap/googlemap/xml.php");
+
+            XmlReaderSettings settings = new XmlReaderSettings();
+            settings.IgnoreWhitespace = true;
+
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(xml);
+            writer.Flush();
+            stream.Position = 0;
+
+            List<Location> locations = new List<Location>();
+
+            using(XmlReader reader = XmlReader.Create(stream, settings))
+            {
+                while(reader.Read())
+                {
+                    if(reader.Name == "marker")
+                    {
+                        locations.Add(new Location 
+                        {
+                            Lat = double.Parse(reader.GetAttribute("lat")),
+                            Lng = double.Parse(reader.GetAttribute("lng")),
+                            Address = $"{reader.GetAttribute("address")}, {reader.GetAttribute("district")}, {reader.GetAttribute("region")}"
+                        });
+                    }
+                }
+            }
+
+            return locations.ToArray();
         }
     }
 }

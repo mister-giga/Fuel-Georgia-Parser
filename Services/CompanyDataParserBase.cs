@@ -11,6 +11,7 @@ namespace Fuel_Georgia_Parser.Services
     {
         public abstract string CompanyKey { get; }
         public abstract string CompanyName { get; }
+        public abstract string CompanyColor { get; }
         public abstract Task<Location[]> GetLocationsAsync();
         public abstract Task<Fuel[]> GetActiveFuelsAsync();
 
@@ -79,6 +80,5 @@ namespace Fuel_Georgia_Parser.Services
                 }
             }
         }
-            
     }
 }

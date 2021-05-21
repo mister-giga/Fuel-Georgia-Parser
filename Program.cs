@@ -11,7 +11,11 @@ using System.Collections.Generic;
 string repoName = Env.GetRepoName(out var userName);
 string token = Env.GetEnvVariable("INPUT_GH_TOKEN", required: true);
 string branch = Env.GetEnvVariable("INPUT_BRANCH", required: true);
+bool updateLocations = Convert.ToBoolean(Env.GetEnvVariable("INPUT_UPDATE_LOCATIONS", def: "false", required: false));
+bool updatePrices = Convert.ToBoolean(Env.GetEnvVariable("INPUT_UPDATE_PRICES", def: "true", required: false));
 DataAccessOptions.RootPath = Env.GetEnvVariable("INPUT_DIR", "data");
+
+FaultColletor.Instance.Init(token, userName, repoName);
 
 RepoHelper repo = new()
 {
@@ -33,14 +37,46 @@ var parsers = new CompanyDataParserBase[] {
     new RompetrolDataParser()
 };
 
-var companiesDataAccess = new CompaniesDataAccess();
+if(updatePrices)
+{
+    Console.WriteLine("Start update prices");
+    var companiesDataAccess = new CompaniesDataAccess();
 
-var companiesLocalData = companiesDataAccess.Data;
+    var companiesLocalData = companiesDataAccess.Data;
 
-var companiesFreshData = await Task.WhenAll(parsers.Select(p => GetFreshCompanyDataAsync(companiesLocalData.FirstOrDefault(x => x.Key == p.CompanyKey), p)));
+    var companiesFreshData = await Task.WhenAll(parsers.Select(p => GetFreshCompanyDataAsync(companiesLocalData.FirstOrDefault(x => x.Key == p.CompanyKey), p)));
 
 
-companiesDataAccess.Data = companiesFreshData.Select(x => x.company).ToArray();
+    companiesDataAccess.Data = companiesFreshData.Select(x => x.company).ToArray();
+
+
+    foreach(var companyFreshData in companiesFreshData)
+    {
+        foreach(var priceChangeFuelKey in companyFreshData.priceChangedFuelKeys)
+        {
+            var fuelPriceChangesDataAccess = new FuelPriceChangesDataAccess(companyFreshData.company.Key, priceChangeFuelKey);
+            var currentFuelStatus = companyFreshData.company.Fuels.First(x => x.Key == priceChangeFuelKey);
+            fuelPriceChangesDataAccess.Data = fuelPriceChangesDataAccess.Data.Append(new PricePoint
+            {
+                Price = currentFuelStatus.Price,
+                Change = currentFuelStatus.Change,
+                Date = DateTime.UtcNow
+            }).ToArray();
+        }
+    }
+
+    Console.WriteLine("Complete update prices");
+}
+
+if(updateLocations)
+{
+    Console.WriteLine("Start update locations");
+
+    await Task.WhenAll(parsers.Select(x => UpdateLocationAsync(x)));
+
+    Console.WriteLine("Complete update locations");
+}
+
 
 
 repo.CommitAndPush("Test commit");
@@ -49,6 +85,9 @@ repo.CommitAndPush("Test commit");
 if(Directory.Exists("./"))
     Directory.Delete("./", true);
 #endif
+
+
+await FaultColletor.Instance.UploadAsync();
 
 
 async Task<(Company company, string[] priceChangedFuelKeys)> GetFreshCompanyDataAsync(Company old, CompanyDataParserBase parser)
@@ -86,4 +125,22 @@ async Task<(Company company, string[] priceChangedFuelKeys)> GetFreshCompanyData
 
     Console.WriteLine($"Get fresh compnay data ended for {parser.CompanyKey}");
     return (company: newData, priceChangedFuelKeys: activeFuels.Select(x => x.Key).ToHashSet().Except(stablePriceFuelKeys).ToArray());
+}
+
+async Task UpdateLocationAsync(CompanyDataParserBase parser)
+{
+    try
+    {
+        var freshLocations = await parser.GetLocationsAsync();
+
+        if(freshLocations?.Any() == true)
+        {
+            var locationDataAccess = new LocationsDataAccess(parser.CompanyKey);
+            locationDataAccess.Data = freshLocations;
+        }
+    }
+    catch(Exception ex)
+    {
+        FaultColletor.Instance.Register($"{parser.GetType().FullName}.GetLocationsAsync() - {parser.CompanyName}", ex, "locations", parser.CompanyKey);
+    }
 }

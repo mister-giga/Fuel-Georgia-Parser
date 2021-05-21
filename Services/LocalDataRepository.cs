@@ -22,7 +22,7 @@ namespace Fuel_Georgia_Parser.Services
             {
                 WriteIndented = true,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
+                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
             };
         }
     }
@@ -44,12 +44,42 @@ namespace Fuel_Georgia_Parser.Services
                     return GetDefault();
                 }
             }
-            set => File.WriteAllText(GetPath(), JsonSerializer.Serialize(value, DataAccessOptions.JsonSerializerOptions));
+            set => File.WriteAllText(EnsureDirectory(GetPath()), JsonSerializer.Serialize(value, DataAccessOptions.JsonSerializerOptions));
+        }
+
+        static string EnsureDirectory(string path)
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            return path;
         }
     }
 
     class CompaniesDataAccess : DataAccess<Company>
     {
         protected override string GetPath() => Path.Combine(DataAccessOptions.RootPath, "companies.json");
+    }
+
+    class LocationsDataAccess : DataAccess<Location>
+    {
+        private readonly string companyKey;
+
+        public LocationsDataAccess(string companyKey)
+        {
+            this.companyKey = companyKey;
+        }
+        protected override string GetPath() => Path.Combine(DataAccessOptions.RootPath, companyKey, "locations.json");
+    }
+
+    class FuelPriceChangesDataAccess : DataAccess<PricePoint>
+    {
+        private readonly string companyKey;
+        private readonly string fuelKey;
+
+        public FuelPriceChangesDataAccess(string companyKey, string fuelKey)
+        {
+            this.companyKey = companyKey;
+            this.fuelKey = fuelKey;
+        }
+        protected override string GetPath() => Path.Combine(DataAccessOptions.RootPath, companyKey, "priceChanges", $"{fuelKey}.json");
     }
 }
