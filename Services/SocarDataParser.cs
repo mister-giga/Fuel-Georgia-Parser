@@ -1,4 +1,4 @@
-﻿using Fuel_Georgia_Parser.Models;
+using Fuel_Georgia_Parser.Models;
 using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Fuel_Georgia_Parser.Services
 {
@@ -49,7 +50,9 @@ namespace Fuel_Georgia_Parser.Services
 
         class LocationModel
         {
+            [JsonPropertyName("lon")]
             public string lat { get; set; }
+            [JsonPropertyName("lat")]
             public string lon { get; set; }   
             public string text { get; set; }
         }
