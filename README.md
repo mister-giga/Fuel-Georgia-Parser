@@ -15,4 +15,4 @@
 
 # მიზანი
 ეს რეპო გამოიყენება როგორც ```GitHub Action``` და ინფორმაციას ინახავს იმ რეპოში სადაც ხდება მისი გამოყენება
-ერთ ერთი რეპო რომელიც ამ პროექტს იყენებს არის (Fuel-Georgia)[https://github.com/mister-giga/Fuel-Georgia]
+ერთ ერთი რეპო რომელიც ამ პროექტს იყენებს არის [Fuel-Georgia](https://github.com/mister-giga/Fuel-Georgia)
