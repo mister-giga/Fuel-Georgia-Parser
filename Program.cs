@@ -8,7 +8,8 @@ using System.Linq;
 using Fuel_Georgia_Parser.Models;
 using System.Collections.Generic;
 
-string repoName = Env.GetRepoName(out var userName);
+string repoName = Env
+.GetRepoName(out var userName);
 string token = Env.GetEnvVariable("INPUT_GH_TOKEN", required: true);
 string branch = Env.GetEnvVariable("INPUT_BRANCH", required: true);
 bool updateLocations = Convert.ToBoolean(Env.GetEnvVariable("INPUT_UPDATE_LOCATIONS", def: "false", required: false));
