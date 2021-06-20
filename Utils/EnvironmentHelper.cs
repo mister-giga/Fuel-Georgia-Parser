@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Fuel_Georgia_Parser.Utils
 {
-    class EnvironmentHelper
+    internal class EnvironmentHelper
     {
         public static string GetEnvVariable(string variable, string def = null, bool required = false)
         {
@@ -20,7 +16,11 @@ namespace Fuel_Georgia_Parser.Utils
             return value;
         }
 
-        public static bool GetEnvVariable(string variable, bool def, bool required = false) => GetEnvVariable(variable, def.ToString(), required).Equals("True", StringComparison.OrdinalIgnoreCase);
+        public static bool GetEnvVariable(string variable, bool def, bool required = false)
+        {
+            return GetEnvVariable(variable, def.ToString(), required)
+                .Equals("True", StringComparison.OrdinalIgnoreCase);
+        }
 
         public static string GetRepoName(out string userName)
         {

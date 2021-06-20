@@ -1,14 +1,13 @@
-﻿using Fuel_Georgia_Parser.Models;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Fuel_Georgia_Parser.Models;
 
 namespace Fuel_Georgia_Parser.Services
 {
-    class WissolDataParser : CompanyDataParserBase
+    internal class WissolDataParser : CompanyDataParserBase
     {
         public override string CompanyKey => "wissol";
 
@@ -18,8 +17,9 @@ namespace Fuel_Georgia_Parser.Services
 
         public override async Task<Fuel[]> GetActiveFuelsAsync()
         {
-            var json = await new HttpClient().GetStringAsync("http://wissol.ge/adminarea/api/ajaxapi/get_fuel_prices?lang=geo");
-            var fuels = System.Text.Json.JsonSerializer.Deserialize<List<FuelModel>>(json);
+            var json = await new HttpClient().GetStringAsync(
+                "http://wissol.ge/adminarea/api/ajaxapi/get_fuel_prices?lang=geo");
+            var fuels = JsonSerializer.Deserialize<List<FuelModel>>(json);
 
             return fuels.Select(x => new Fuel
             {
@@ -29,10 +29,10 @@ namespace Fuel_Georgia_Parser.Services
             }).ToArray();
         }
 
-        public async override Task<Location[]> GetLocationsAsync()
+        public override async Task<Location[]> GetLocationsAsync()
         {
             var json = await new HttpClient().GetStringAsync("http://wissol.ge/adminarea/api/ajaxapi/map?lang=geo");
-            var fuels = System.Text.Json.JsonSerializer.Deserialize<List<LocatonModel>>(json);
+            var fuels = JsonSerializer.Deserialize<List<LocatonModel>>(json);
 
             return fuels.Select(x => new Location
             {
@@ -42,13 +42,13 @@ namespace Fuel_Georgia_Parser.Services
             }).ToArray();
         }
 
-        class FuelModel
+        private class FuelModel
         {
             public string fuel_name { get; set; }
             public string fuel_price { get; set; }
         }
 
-        class LocatonModel
+        private class LocatonModel
         {
             public string address { get; set; }
             public string lat { get; set; }

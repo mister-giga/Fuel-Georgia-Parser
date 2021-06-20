@@ -3,27 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Fuel_Georgia_Parser.Services
 {
-    class FaultColletor
+    internal class FaultColletor
     {
-        static FaultColletor _instance;
-        public static FaultColletor Instance => _instance ??= new FaultColletor();
+        private static FaultColletor _instance;
 
-        readonly List<(string message, Exception ex)> faults;
-        readonly HashSet<string> labels;
+        private readonly List<(string message, Exception ex)> faults;
+        private readonly HashSet<string> labels;
 
         private string ghToken;
-        private string userName;
         private string repoName;
+        private string userName;
 
-        FaultColletor()
+        private FaultColletor()
         {
             faults = new List<(string, Exception)>();
-            labels = new HashSet<string>(new[] { "bug" });
+            labels = new HashSet<string>(new[] {"bug"});
         }
+
+        public static FaultColletor Instance => _instance ??= new FaultColletor();
 
         public void Register(string message, Exception ex, params string[] labels)
         {
@@ -54,7 +56,7 @@ namespace Fuel_Georgia_Parser.Services
 
                 StringBuilder bodyBuilder = new();
 
-                int faultCount = 0;
+                var faultCount = 0;
                 foreach (var fault in faults)
                 {
                     bodyBuilder.AppendLine($"<b>{++faultCount})</b> {fault.message}");
@@ -65,13 +67,14 @@ namespace Fuel_Georgia_Parser.Services
                 var postData = new
                 {
                     title = $"Fuel-Georgia-Parser faulted with {faults.Count} error{(faults.Count > 1 ? "s" : "")}",
-                    labels = labels,
-                    body = bodyBuilder.ToString(),
+                    labels,
+                    body = bodyBuilder.ToString()
                 };
 
-                var postJson = System.Text.Json.JsonSerializer.Serialize(postData);
+                var postJson = JsonSerializer.Serialize(postData);
 
-                var resp = await client.PostAsync($"https://api.github.com/repos/{userName}/{repoName}/issues", new StringContent(postJson, Encoding.UTF8, "application/json"));
+                var resp = await client.PostAsync($"https://api.github.com/repos/{userName}/{repoName}/issues",
+                    new StringContent(postJson, Encoding.UTF8, "application/json"));
                 resp.EnsureSuccessStatusCode();
                 Console.WriteLine("Faults uploaded");
             }

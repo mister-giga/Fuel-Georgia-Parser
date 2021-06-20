@@ -1,13 +1,9 @@
-﻿using Fuel_Georgia_Parser.Models;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
-using System.Threading.Tasks;
+using Fuel_Georgia_Parser.Models;
 
 namespace Fuel_Georgia_Parser.Services
 {
@@ -26,10 +22,9 @@ namespace Fuel_Georgia_Parser.Services
             };
         }
     }
-    abstract class DataAccess<T> where T : class, new()
+
+    internal abstract class DataAccess<T> where T : class, new()
     {
-        protected abstract string GetPath();
-        public virtual T[] GetDefault() => Array.Empty<T>();
         public T[] Data
         {
             get
@@ -39,27 +34,36 @@ namespace Fuel_Georgia_Parser.Services
                     var json = File.ReadAllText(GetPath());
                     return JsonSerializer.Deserialize<T[]>(json, DataAccessOptions.JsonSerializerOptions);
                 }
-                else
-                {
-                    return GetDefault();
-                }
+
+                return GetDefault();
             }
-            set => File.WriteAllText(EnsureDirectory(GetPath()), JsonSerializer.Serialize(value, DataAccessOptions.JsonSerializerOptions));
+            set => File.WriteAllText(EnsureDirectory(GetPath()),
+                JsonSerializer.Serialize(value, DataAccessOptions.JsonSerializerOptions));
         }
 
-        static string EnsureDirectory(string path)
+        protected abstract string GetPath();
+
+        public virtual T[] GetDefault()
+        {
+            return Array.Empty<T>();
+        }
+
+        private static string EnsureDirectory(string path)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             return path;
         }
     }
 
-    class CompaniesDataAccess : DataAccess<Company>
+    internal class CompaniesDataAccess : DataAccess<Company>
     {
-        protected override string GetPath() => Path.Combine(DataAccessOptions.RootPath, "companies.json");
+        protected override string GetPath()
+        {
+            return Path.Combine(DataAccessOptions.RootPath, "companies.json");
+        }
     }
 
-    class LocationsDataAccess : DataAccess<Location>
+    internal class LocationsDataAccess : DataAccess<Location>
     {
         private readonly string companyKey;
 
@@ -67,10 +71,14 @@ namespace Fuel_Georgia_Parser.Services
         {
             this.companyKey = companyKey;
         }
-        protected override string GetPath() => Path.Combine(DataAccessOptions.RootPath, companyKey, "locations.json");
+
+        protected override string GetPath()
+        {
+            return Path.Combine(DataAccessOptions.RootPath, companyKey, "locations.json");
+        }
     }
 
-    class FuelPriceChangesDataAccess : DataAccess<PricePoint>
+    internal class FuelPriceChangesDataAccess : DataAccess<PricePoint>
     {
         private readonly string companyKey;
         private readonly string fuelKey;
@@ -80,6 +88,10 @@ namespace Fuel_Georgia_Parser.Services
             this.companyKey = companyKey;
             this.fuelKey = fuelKey;
         }
-        protected override string GetPath() => Path.Combine(DataAccessOptions.RootPath, companyKey, "priceChanges", $"{fuelKey}.json");
+
+        protected override string GetPath()
+        {
+            return Path.Combine(DataAccessOptions.RootPath, companyKey, "priceChanges", $"{fuelKey}.json");
+        }
     }
 }

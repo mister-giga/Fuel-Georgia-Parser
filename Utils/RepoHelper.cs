@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Cli = Fuel_Georgia_Parser.Utils.CliHelper;
 
 namespace Fuel_Georgia_Parser.Utils
 {
-    class RepoHelper
+    internal class RepoHelper
     {
         public string Branch { get; init; }
         public string UserName { get; init; }

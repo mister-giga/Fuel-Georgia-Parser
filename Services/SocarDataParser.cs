@@ -1,16 +1,14 @@
-using Fuel_Georgia_Parser.Models;
-using HtmlAgilityPack;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using Fuel_Georgia_Parser.Models;
 
 namespace Fuel_Georgia_Parser.Services
 {
-    class SocarDataParser : CompanyDataParserBase
+    internal class SocarDataParser : CompanyDataParserBase
     {
         public override string CompanyKey => "socar";
 
@@ -26,7 +24,8 @@ namespace Fuel_Georgia_Parser.Services
 
             var table = doc.DocumentNode.Descendants("table").First();
             var names = table.Descendants("th").Skip(1).Select(x => x.InnerHtml.Trim()).ToArray();
-            var values = table.Descendants("tr").First().Descendants("td").Skip(1).Select(x => decimal.Parse(x.InnerText.Trim())).ToArray();
+            var values = table.Descendants("tr").First().Descendants("td").Skip(1)
+                .Select(x => decimal.Parse(x.InnerText.Trim())).ToArray();
 
             return names.Zip(values).Select(x => new Fuel
             {
@@ -39,7 +38,7 @@ namespace Fuel_Georgia_Parser.Services
         public override async Task<Location[]> GetLocationsAsync()
         {
             var json = await new HttpClient().GetStringAsync("https://sgp.ge/ge/map/getResult");
-            var data = System.Text.Json.JsonSerializer.Deserialize<List<LocationModel>>(json);
+            var data = JsonSerializer.Deserialize<List<LocationModel>>(json);
             return data.Select(x => new Location
             {
                 Address = StripHTML(x.text),
@@ -48,12 +47,12 @@ namespace Fuel_Georgia_Parser.Services
             }).ToArray();
         }
 
-        class LocationModel
+        private class LocationModel
         {
-            [JsonPropertyName("lon")]
-            public string lat { get; set; }
-            [JsonPropertyName("lat")]
-            public string lon { get; set; }
+            [JsonPropertyName("lon")] public string lat { get; set; }
+
+            [JsonPropertyName("lat")] public string lon { get; set; }
+
             public string text { get; set; }
         }
     }
