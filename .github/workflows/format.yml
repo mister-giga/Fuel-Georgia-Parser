@@ -20,7 +20,7 @@ jobs:
     - name: Clean up
       run: jb cleanupcode Fuel-Georgia-Parser.sln
     - name: Commit and Push
-    - run: |
+      run: |
           git config user.name cleanup-bot
           git config user.email cleanup-bot@every.bot
           git add .
