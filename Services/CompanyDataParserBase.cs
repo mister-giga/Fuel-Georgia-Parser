@@ -67,6 +67,8 @@ namespace Fuel_Georgia_Parser.Services
             {
                 foreach (var c in chars)
                 {
+                    
+                    
                     if (charMappings.ContainsKey(c))
                     {
                         yield return charMappings[c];
