@@ -1,0 +1,28 @@
+name: Formatter
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Setup ReSharper
+      run: dotnet tool install -g JetBrains.ReSharper.GlobalTools
+    - name: Clean up
+      run: jb cleanupcode Fuel-Georgia-Parser.sln
+    - name: Commit and Push
+    - run: |
+          git config user.name cleanup-bot
+          git config user.email cleanup-bot@every.bot
+          git add .
+          git commit -m "cleanup"
+          git push
