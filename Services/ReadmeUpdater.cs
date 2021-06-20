@@ -1,26 +1,24 @@
-﻿using Fuel_Georgia_Parser.Models;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Fuel_Georgia_Parser.Models;
 
 namespace Fuel_Georgia_Parser.Services
 {
-    class ReadmeUpdater
+    internal class ReadmeUpdater
     {
-        const string start = "<!--PRICING-START-->", end = "<!--PRICING-END-->", readme = "README.md";
+        private const string start = "<!--PRICING-START-->", end = "<!--PRICING-END-->", readme = "README.md";
+
         public static void UpdatePricing(Company[] companies, string userName, string repo, string branch)
         {
-            if(File.Exists(readme))
+            if (File.Exists(readme))
             {
                 var content = File.ReadAllText(readme);
 
                 var startIndex = content.IndexOf(start);
                 var endIndex = content.IndexOf(end);
 
-                if(startIndex >= 0 && endIndex > startIndex)
+                if (startIndex >= 0 && endIndex > startIndex)
                 {
                     var pre = content.Substring(0, startIndex + start.Length);
 
@@ -32,7 +30,7 @@ namespace Fuel_Georgia_Parser.Services
                 }
             }
 
-           
+
             string getContent()
             {
                 StringBuilder b = new(Environment.NewLine);
@@ -40,29 +38,34 @@ namespace Fuel_Georgia_Parser.Services
 
 
                 b.AppendLine("<div>");
-                foreach(var company in companies)
-                    b.AppendLine($"<img src=\"https://raw.githubusercontent.com/{userName}/{repo}/{branch}/blob/{company.Key}.png\" alt=\"{company.Key} logo\" width=\"50\" >");
+                foreach (var company in companies)
+                    b.AppendLine(
+                        $"<img src=\"https://raw.githubusercontent.com/{userName}/{repo}/{branch}/blob/{company.Key}.png\" alt=\"{company.Key} logo\" width=\"50\" >");
                 b.AppendLine("</div>");
 
                 b.AppendLine("კომპანიების საწვავის მიმდინარე ფასები მოცემულია შემდეგ ცხრილებში");
 
-                foreach(var company in companies)
+                foreach (var company in companies)
                 {
                     b.AppendLine("<table>");
 
                     b.AppendLine($"<tr><th colSpan=\"3\">{company.Name}</th></tr>");
-                    b.AppendLine($"<tr><th>სახელი</th><th>ფასი</th><th>ცვლილება</th></th></tr>");
+                    b.AppendLine("<tr><th>სახელი</th><th>ფასი</th><th>ცვლილება</th></th></tr>");
 
-                    foreach(var fuel in company.Fuels)
+                    foreach (var fuel in company.Fuels)
                     {
-                        b.AppendLine($"<tr><td>{fuel.Name}</td><td>{fuel.Price:N2}</td><td>{sign()}{Math.Abs(fuel.Change):N2}</td></tr>");
+                        b.AppendLine(
+                            $"<tr><td>{fuel.Name}</td><td>{fuel.Price:N2}</td><td>{sign()}{Math.Abs(fuel.Change):N2}</td></tr>");
 
-                        string sign() => fuel.Change switch
+                        string sign()
                         {
-                            < 0 => "-",
-                            > 0 => "+",
-                            _ => ""
-                        };
+                            return fuel.Change switch
+                            {
+                                < 0 => "-",
+                                > 0 => "+",
+                                _ => ""
+                            };
+                        }
                     }
 
                     b.AppendLine("</table>");
@@ -71,9 +74,6 @@ namespace Fuel_Georgia_Parser.Services
                 b.AppendLine();
                 return b.ToString();
             }
-
         }
-
-       
     }
 }

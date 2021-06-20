@@ -1,15 +1,13 @@
-﻿using Fuel_Georgia_Parser.Models;
-using HtmlAgilityPack;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Fuel_Georgia_Parser.Models;
 
 namespace Fuel_Georgia_Parser.Services
 {
-    class GulfDataParser : CompanyDataParserBase
+    internal class GulfDataParser : CompanyDataParserBase
     {
         public override string CompanyKey => "gulf";
 
@@ -23,10 +21,10 @@ namespace Fuel_Georgia_Parser.Services
             var web = new HtmlWeb();
             var doc = await web.LoadFromWebAsync(url);
 
-            var fuels = doc.DocumentNode.Descendants("div").Where(x=>x.HasClass("price_entry")).Select(x =>
+            var fuels = doc.DocumentNode.Descendants("div").Where(x => x.HasClass("price_entry")).Select(x =>
             {
                 return (
-                    name: x.Descendants("div").First(x=>x.HasClass("product_name")).InnerText.Trim(),
+                    name: x.Descendants("div").First(x => x.HasClass("product_name")).InnerText.Trim(),
                     price: decimal.Parse(x.Descendants("div").First(x => x.HasClass("product_price")).InnerText.Trim())
                 );
             }).ToArray();
@@ -43,8 +41,8 @@ namespace Fuel_Georgia_Parser.Services
         public override async Task<Location[]> GetLocationsAsync()
         {
             var json = await new HttpClient().GetStringAsync("https://gulf.ge/map/get_objects");
-            var data = System.Text.Json.JsonSerializer.Deserialize<List<LocationModel>>(json).Where(x=>x.type=="1");
-            return data.Select(x => new Location 
+            var data = JsonSerializer.Deserialize<List<LocationModel>>(json).Where(x => x.type == "1");
+            return data.Select(x => new Location
             {
                 Address = StripHTML(x.description),
                 Lat = double.Parse(x.latitude),
@@ -52,7 +50,7 @@ namespace Fuel_Georgia_Parser.Services
             }).ToArray();
         }
 
-        class LocationModel
+        private class LocationModel
         {
             public string type { get; set; }
             public string description { get; set; }
