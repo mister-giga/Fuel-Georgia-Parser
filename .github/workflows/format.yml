@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Clone
+      uses: actions/checkout@v2
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
@@ -19,10 +20,13 @@ jobs:
       run: dotnet tool install -g JetBrains.ReSharper.GlobalTools
     - name: Clean up
       run: jb cleanupcode Fuel-Georgia-Parser.sln
-    - name: Commit and Push
-      run: |
-          git config user.name cleanup-bot
-          git config user.email cleanup-bot@every.bot
-          git add .
-          git commit -m "cleanup"
-          git push
+    - name: Set username
+      run: git config user.name cleanup-bot
+    - name: Set email
+      run: git config user.email cleanup-bot@every.bot
+    - name: Stage files
+      run: git add .
+    - name: Commit
+      run: git commit -m "cleanup"
+    - name: Push
+      run: git push
