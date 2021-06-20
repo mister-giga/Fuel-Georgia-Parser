@@ -25,15 +25,15 @@ namespace Fuel_Georgia_Parser.Services
             var doc = await web.LoadFromWebAsync(url);
 
             var table = doc.DocumentNode.Descendants("table").First();
-            var names = table.Descendants("th").Skip(1).Select(x=>x.InnerHtml.Trim()).ToArray();
-            var values = table.Descendants("tr").First().Descendants("td").Skip(1).Select(x=> decimal.Parse(x.InnerText.Trim())).ToArray();
+            var names = table.Descendants("th").Skip(1).Select(x => x.InnerHtml.Trim()).ToArray();
+            var values = table.Descendants("tr").First().Descendants("td").Skip(1).Select(x => decimal.Parse(x.InnerText.Trim())).ToArray();
 
             return names.Zip(values).Select(x => new Fuel
             {
                 Key = ConvertFuelNameToKey(x.First),
                 Name = x.First,
                 Price = x.Second
-            }).Where(x=>x.Price > 0).ToArray();
+            }).Where(x => x.Price > 0).ToArray();
         }
 
         public override async Task<Location[]> GetLocationsAsync()
@@ -53,7 +53,7 @@ namespace Fuel_Georgia_Parser.Services
             [JsonPropertyName("lon")]
             public string lat { get; set; }
             [JsonPropertyName("lat")]
-            public string lon { get; set; }   
+            public string lon { get; set; }
             public string text { get; set; }
         }
     }

@@ -39,7 +39,7 @@ var parsers = new CompanyDataParserBase[] {
     new SocarDataParser(),
 };
 
-if(updatePrices)
+if (updatePrices)
 {
     Console.WriteLine("Start update prices");
     var companiesDataAccess = new CompaniesDataAccess();
@@ -48,9 +48,9 @@ if(updatePrices)
 
     var companiesFreshData = await Task.WhenAll(parsers.Select(p => GetFreshCompanyDataAsync(companiesLocalData.FirstOrDefault(x => x.Key == p.CompanyKey), p)));
 
-    foreach(var companyFreshData in companiesFreshData)
+    foreach (var companyFreshData in companiesFreshData)
     {
-        foreach(var priceChangeFuelKey in companyFreshData.priceChangedFuelKeys)
+        foreach (var priceChangeFuelKey in companyFreshData.priceChangedFuelKeys)
         {
             var fuelPriceChangesDataAccess = new FuelPriceChangesDataAccess(companyFreshData.company.Key, priceChangeFuelKey);
             var fuelPriceHistory = fuelPriceChangesDataAccess.Data;
@@ -58,17 +58,17 @@ if(updatePrices)
             var currentFuelStatus = companyFreshData.company.Fuels.First(x => x.Key == priceChangeFuelKey);
             var lastPrice = fuelPriceHistory.LastOrDefault();
 
-            if(currentFuelStatus.Change == 0 && lastPrice != null)
+            if (currentFuelStatus.Change == 0 && lastPrice != null)
             {
                 currentFuelStatus.Change = currentFuelStatus.Price - lastPrice.Price;
-                if(currentFuelStatus.Change == 0 && fuelPriceHistory.Length >= 2)
+                if (currentFuelStatus.Change == 0 && fuelPriceHistory.Length >= 2)
                 {
                     var secondFromLast = fuelPriceHistory[fuelPriceHistory.Length - 2];
                     currentFuelStatus.Change = currentFuelStatus.Price - secondFromLast.Price;
                 }
             }
 
-            if(lastPrice?.Price != currentFuelStatus.Price)
+            if (lastPrice?.Price != currentFuelStatus.Price)
             {
                 fuelPriceChangesDataAccess.Data = fuelPriceHistory.Append(new PricePoint
                 {
@@ -88,7 +88,7 @@ if(updatePrices)
     Console.WriteLine("Complete update prices");
 }
 
-if(updateLocations)
+if (updateLocations)
 {
     Console.WriteLine("Start update locations");
 
@@ -102,7 +102,7 @@ if(updateLocations)
 repo.CommitAndPush("Data updated");
 
 #if DEBUG //cleanup
-if(Directory.Exists("./"))
+if (Directory.Exists("./"))
     Directory.Delete("./", true);
 #endif
 
@@ -118,16 +118,16 @@ async Task<(Company company, string[] priceChangedFuelKeys)> GetFreshCompanyData
         HashSet<string> stablePriceFuelKeys = new();
         var activeFuels = await parser.GetActiveFuelsAsync();
 
-        if(old?.Fuels?.Any() == true)
+        if (old?.Fuels?.Any() == true)
         {
-            foreach(var activeFuel in activeFuels)
+            foreach (var activeFuel in activeFuels)
             {
                 var oldFuel = old.Fuels.FirstOrDefault(f => f.Key == activeFuel.Key);
-                if(oldFuel != null)
+                if (oldFuel != null)
                 {
                     var priceFiff = activeFuel.Price - oldFuel.Price;
 
-                    if(priceFiff != 0)
+                    if (priceFiff != 0)
                         activeFuel.Change = priceFiff;
                     else
                     {
@@ -149,7 +149,7 @@ async Task<(Company company, string[] priceChangedFuelKeys)> GetFreshCompanyData
         Console.WriteLine($"Get fresh compnay data ended for {parser.CompanyKey}");
         return (company: newData, priceChangedFuelKeys: activeFuels.Select(x => x.Key).ToHashSet().Except(stablePriceFuelKeys).ToArray());
     }
-    catch(Exception ex)
+    catch (Exception ex)
     {
         FaultColletor.Instance.Register($"{parser.GetType().FullName}.GetActiveFuelsAsync() - {parser.CompanyName}", ex, "prices", parser.CompanyKey);
         Console.WriteLine($"Get fresh compnay data faulted for {parser.CompanyKey}");
@@ -163,13 +163,13 @@ async Task UpdateLocationAsync(CompanyDataParserBase parser)
     {
         var freshLocations = await parser.GetLocationsAsync();
 
-        if(freshLocations?.Any() == true)
+        if (freshLocations?.Any() == true)
         {
             var locationDataAccess = new LocationsDataAccess(parser.CompanyKey);
             locationDataAccess.Data = freshLocations;
         }
     }
-    catch(Exception ex)
+    catch (Exception ex)
     {
         FaultColletor.Instance.Register($"{parser.GetType().FullName}.GetLocationsAsync() - {parser.CompanyName}", ex, "locations", parser.CompanyKey);
     }

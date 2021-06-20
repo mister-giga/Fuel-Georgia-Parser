@@ -33,7 +33,7 @@ namespace Fuel_Georgia_Parser.Services
             }).ToArray();
 
 
-            return fuels.Select(x => new Fuel 
+            return fuels.Select(x => new Fuel
             {
                 Key = ConvertFuelNameToKey(x.name),
                 Name = x.name,

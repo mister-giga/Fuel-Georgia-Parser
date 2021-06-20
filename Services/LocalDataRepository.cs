@@ -34,7 +34,7 @@ namespace Fuel_Georgia_Parser.Services
         {
             get
             {
-                if(File.Exists(GetPath()))
+                if (File.Exists(GetPath()))
                 {
                     var json = File.ReadAllText(GetPath());
                     return JsonSerializer.Deserialize<T[]>(json, DataAccessOptions.JsonSerializerOptions);

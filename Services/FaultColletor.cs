@@ -22,21 +22,21 @@ namespace Fuel_Georgia_Parser.Services
         FaultColletor()
         {
             faults = new List<(string, Exception)>();
-            labels = new HashSet<string>(new [] { "bug" });
+            labels = new HashSet<string>(new[] { "bug" });
         }
 
         public void Register(string message, Exception ex, params string[] labels)
         {
-            lock(this)
+            lock (this)
             {
                 faults.Add((message, ex));
-                foreach(var label in labels)
+                foreach (var label in labels)
                     this.labels.Add(label);
             }
         }
-        
-        
-        public void Init(string ghToken, string userName, string repoName) 
+
+
+        public void Init(string ghToken, string userName, string repoName)
         {
             this.ghToken = ghToken;
             this.userName = userName;
@@ -45,7 +45,7 @@ namespace Fuel_Georgia_Parser.Services
 
         public async Task UploadAsync()
         {
-            if(faults.Any())
+            if (faults.Any())
             {
                 Console.WriteLine($"Uploading {faults.Count} faults");
                 var client = new HttpClient();
@@ -55,14 +55,14 @@ namespace Fuel_Georgia_Parser.Services
                 StringBuilder bodyBuilder = new();
 
                 int faultCount = 0;
-                foreach(var fault in faults)
+                foreach (var fault in faults)
                 {
                     bodyBuilder.AppendLine($"<b>{++faultCount})</b> {fault.message}");
                     bodyBuilder.AppendLine($"```{fault.ex}\n```");
                     Console.WriteLine();
                 }
 
-                var postData = new 
+                var postData = new
                 {
                     title = $"Fuel-Georgia-Parser faulted with {faults.Count} error{(faults.Count > 1 ? "s" : "")}",
                     labels = labels,

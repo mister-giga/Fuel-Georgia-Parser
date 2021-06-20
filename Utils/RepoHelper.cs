@@ -14,7 +14,7 @@ namespace Fuel_Georgia_Parser.Utils
         public string RepoName { get; init; }
         public string Token { get; init; }
         public string CommiterUserName { get; init; } = "Bot";
-        
+
         public Action<string> LineOutput { get; init; }
 
         public void Clone()

@@ -12,10 +12,10 @@ namespace Fuel_Georgia_Parser.Utils
         {
             var value = Environment.GetEnvironmentVariable(variable);
 
-            if(required && value == null)
+            if (required && value == null)
                 throw new ArgumentException($"{variable} is not provided", variable);
 
-            if(value == null)
+            if (value == null)
                 return def;
             return value;
         }

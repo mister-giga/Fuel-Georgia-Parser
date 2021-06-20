@@ -21,7 +21,7 @@ namespace Fuel_Georgia_Parser.Services
             var json = await new HttpClient().GetStringAsync("http://wissol.ge/adminarea/api/ajaxapi/get_fuel_prices?lang=geo");
             var fuels = System.Text.Json.JsonSerializer.Deserialize<List<FuelModel>>(json);
 
-            return fuels.Select(x => new Fuel 
+            return fuels.Select(x => new Fuel
             {
                 Name = x.fuel_name,
                 Key = ConvertFuelNameToKey(x.fuel_name),

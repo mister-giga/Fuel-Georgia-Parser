@@ -25,7 +25,7 @@ namespace Fuel_Georgia_Parser.Utils
 
 
             string currLine;
-            while((currLine = process.StandardOutput.ReadLine()) != null)
+            while ((currLine = process.StandardOutput.ReadLine()) != null)
             {
                 onOutput?.Invoke(currLine);
             }

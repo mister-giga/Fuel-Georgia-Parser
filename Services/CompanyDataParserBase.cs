@@ -65,15 +65,15 @@ namespace Fuel_Georgia_Parser.Services
 
             static IEnumerable<char> MapAndFilter(IEnumerable<char> chars)
             {
-                foreach(var c in chars)
+                foreach (var c in chars)
                 {
-                    if(charMappings.ContainsKey(c))
+                    if (charMappings.ContainsKey(c))
                     {
                         yield return charMappings[c];
                         continue;
                     }
                     var lowered = char.ToLower(c);
-                    if(validChars.Contains(lowered))
+                    if (validChars.Contains(lowered))
                     {
                         yield return lowered;
                         continue;
