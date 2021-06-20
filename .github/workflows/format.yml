@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Clone
       uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
     - run: git branch
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
