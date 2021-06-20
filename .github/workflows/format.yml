@@ -13,7 +13,7 @@ jobs:
     - name: Clone
       uses: actions/checkout@v2
       with:
-        ref: ${{ github.event.pull_request.head.sha }}
+        ref: ${{ github.head_ref }}
     - run: git branch
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
