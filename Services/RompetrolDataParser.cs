@@ -1,15 +1,13 @@
-﻿using Fuel_Georgia_Parser.Models;
-using HtmlAgilityPack;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Fuel_Georgia_Parser.Models;
 
 namespace Fuel_Georgia_Parser.Services
 {
-    class RompetrolDataParser : CompanyDataParserBase
+    internal class RompetrolDataParser : CompanyDataParserBase
     {
         public override string CompanyKey => "rompetrol";
 
@@ -33,7 +31,7 @@ namespace Fuel_Georgia_Parser.Services
             }).ToArray();
 
 
-            return fuels.Select(x => new Fuel 
+            return fuels.Select(x => new Fuel
             {
                 Key = ConvertFuelNameToKey(x.name),
                 Name = x.name,
@@ -43,8 +41,9 @@ namespace Fuel_Georgia_Parser.Services
 
         public override async Task<Location[]> GetLocationsAsync()
         {
-            var json = await new HttpClient().GetStringAsync("https://www.rompetrol.ge/routeplanner/stations?language_id=1");
-            var data = System.Text.Json.JsonSerializer.Deserialize<List<LocationModel>>(json);
+            var json = await new HttpClient().GetStringAsync(
+                "https://www.rompetrol.ge/routeplanner/stations?language_id=1");
+            var data = JsonSerializer.Deserialize<List<LocationModel>>(json);
             return data.Select(x => new Location
             {
                 Lat = x.lat,
@@ -53,7 +52,7 @@ namespace Fuel_Georgia_Parser.Services
             }).ToArray();
         }
 
-        class LocationModel
+        private class LocationModel
         {
             public double lat { get; set; }
             public double lng { get; set; }
