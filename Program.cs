@@ -12,8 +12,8 @@ var repoName = Env
     .GetRepoName(out var userName);
 var token = Env.GetEnvVariable("INPUT_GH_TOKEN", required: true);
 var branch = Env.GetEnvVariable("INPUT_BRANCH", required: true);
-var updateLocations = Convert.ToBoolean(Env.GetEnvVariable("INPUT_UPDATE_LOCATIONS", "false", false));
-var updatePrices = Convert.ToBoolean(Env.GetEnvVariable("INPUT_UPDATE_PRICES", "true", false));
+var updateLocations = Convert.ToBoolean(Env.GetEnvVariable("INPUT_UPDATE_LOCATIONS", "false"));
+var updatePrices = Convert.ToBoolean(Env.GetEnvVariable("INPUT_UPDATE_PRICES", "true"));
 DataAccessOptions.RootPath = Env.GetEnvVariable("INPUT_DIR", "data");
 FaultColletor.Instance.Init(token, userName, repoName);
 RepoHelper repo = new()

@@ -1,4 +1,4 @@
-﻿namespace Fuel_Georgia_Parser.Models//r
+﻿namespace Fuel_Georgia_Parser.Models //r
 {
     internal class Company
     {

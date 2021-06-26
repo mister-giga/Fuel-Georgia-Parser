@@ -74,10 +74,7 @@ namespace Fuel_Georgia_Parser.Services
                     }
 
                     var lowered = char.ToLower(c);
-                    if (validChars.Contains(lowered))
-                    {
-                        yield return lowered;
-                    }
+                    if (validChars.Contains(lowered)) yield return lowered;
                 }
             }
         }
