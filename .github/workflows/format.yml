@@ -25,7 +25,7 @@ jobs:
       run: jb cleanupcode Fuel-Georgia-Parser.sln
     - name: Check for modified files
       id: git-check
-      run: echo ::set-output name=modified::$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)
+      run: echo ::set-output name=modified::$(if git diff-index --quiet; then echo "false"; else echo "true"; fi)
     - name: Push changes
       if: steps.git-check.outputs.modified == 'true'
       run: |
