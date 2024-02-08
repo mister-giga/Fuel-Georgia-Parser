@@ -1,23 +1,16 @@
-﻿using Fuel_Georgia_Parser.Models;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Fuel_Georgia_Parser.Models;
 
 namespace Fuel_Georgia_Parser.Services
 {
-    abstract class CompanyDataParserBase
+    internal abstract class CompanyDataParserBase
     {
-        public abstract string CompanyKey { get; }
-        public abstract string CompanyName { get; }
-        public abstract string CompanyColor { get; }
-        public abstract Task<Location[]> GetLocationsAsync();
-        public abstract Task<Fuel[]> GetActiveFuelsAsync();
+        private static readonly char[] validChars;
+        private static readonly Dictionary<char, char> charMappings;
 
-        readonly static char[] validChars;
-        readonly static Dictionary<char, char> charMappings;
         static CompanyDataParserBase()
         {
             validChars = "abcdefghijklmnopqrstuvwxyz_0123456789".ToCharArray();
@@ -59,24 +52,31 @@ namespace Fuel_Georgia_Parser.Services
                 { ' ', '_' }
             };
         }
+
+        public abstract string CompanyKey { get; }
+        public abstract string CompanyName { get; }
+        public abstract string CompanyColor { get; }
+        public abstract Task<Location[]> GetLocationsAsync();
+        public abstract Task<Fuel[]> GetActiveFuelsAsync();
+
         protected static string ConvertFuelNameToKey(string fuelName)
         {
             return new string(MapAndFilter(fuelName).ToArray());
 
             static IEnumerable<char> MapAndFilter(IEnumerable<char> chars)
             {
-                foreach(var c in chars)
+                foreach (var c in chars)
                 {
-                    if(charMappings.ContainsKey(c))
+                    if (charMappings.ContainsKey(c))
                     {
                         yield return charMappings[c];
                         continue;
                     }
+
                     var lowered = char.ToLower(c);
-                    if(validChars.Contains(lowered))
+                    if (validChars.Contains(lowered))
                     {
                         yield return lowered;
-                        continue;
                     }
                 }
             }
@@ -84,7 +84,7 @@ namespace Fuel_Georgia_Parser.Services
 
         protected static string StripHTML(string input)
         {
-            return Regex.Replace(input, "<.*?>", String.Empty);
+            return Regex.Replace(input, "<.*?>", string.Empty);
         }
     }
 }
