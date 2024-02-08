@@ -20,8 +20,11 @@ namespace Fuel_Georgia_Parser.Services
         public override async Task<Fuel[]> GetActiveFuelsAsync()
         {
             var url = "https://www.rompetrol.ge";
-            var web = new HtmlWeb();
-            var doc = await web.LoadFromWebAsync(url);
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36");
+            var html = await httpClient.GetStringAsync(url);
+            var doc = new HtmlDocument();
+            doc.LoadHtml(html);
 
             var fuels = doc.DocumentNode.Descendants("table").First().Descendants("tr").Skip(1).Select(x =>
             {
