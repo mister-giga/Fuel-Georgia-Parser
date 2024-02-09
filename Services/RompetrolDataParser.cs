@@ -1,4 +1,4 @@
-﻿using Fuel_Georgia_Parser.Models;
+using Fuel_Georgia_Parser.Models;
 using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
@@ -35,7 +35,7 @@ namespace Fuel_Georgia_Parser.Services
                 {
                     return await TryGetActiveFuelsAsync();
                 }
-                catch(IOException)
+                catch(Exception)
                 {
                     if (i == 6)
                         throw;
