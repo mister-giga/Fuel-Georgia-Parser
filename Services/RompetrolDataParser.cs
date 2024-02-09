@@ -37,10 +37,10 @@ namespace Fuel_Georgia_Parser.Services
                 }
                 catch(Exception)
                 {
-                    if (i == 6)
+                    if (i > 10)
                         throw;
 
-                    Console.Write($"Failed rompetrol: N{i}");
+                    Console.WriteLine($"Failed rompetrol: N{i}");
                     await Task.Delay(i * 3000);
                 }
             }
