@@ -33,7 +33,7 @@ namespace Fuel_Georgia_Parser.Services
             {
                 try
                 {
-                    return await TryGetActiveFuelsAsync();
+                    return await TryGetActiveFuelsAsync(i <= 5 ? "https://www.rompetrol.ge" : "https://rompetrol.bokuch.com");
                 }
                 catch(Exception)
                 {
@@ -41,13 +41,12 @@ namespace Fuel_Georgia_Parser.Services
                         throw;
 
                     Console.WriteLine($"Failed rompetrol: N{i}");
-                    await Task.Delay(i * 3000);
+                    await Task.Delay(5000);
                 }
             }
         }
-        private async Task<Fuel[]> TryGetActiveFuelsAsync()
+        private async Task<Fuel[]> TryGetActiveFuelsAsync(string url)
         {
-            var url = "https://www.rompetrol.ge";
             var httpClient = new HttpClient();
             foreach (var header in GetHeaders())
                 httpClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
