@@ -7,7 +7,12 @@ using System.Threading.Tasks;
 using System.Linq;
 using Fuel_Georgia_Parser.Models;
 using System.Collections.Generic;
-
+try{
+    var fuels = await new WissolDataParser().GetActiveFuelsAsync();
+}
+catch(Exception ex){
+    System.Console.WriteLine(ex);
+}
 string repoName = Env.GetRepoName(out var userName);
 string token = Env.GetEnvVariable("INPUT_GH_TOKEN", required: true);
 string branch = Env.GetEnvVariable("INPUT_BRANCH", required: true);
