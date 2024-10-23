@@ -18,7 +18,7 @@ namespace Fuel_Georgia_Parser.Services
 
         public override async Task<Fuel[]> GetActiveFuelsAsync()
         {
-            var json = await new HttpClient().GetStringAsync("http://wissol.ge/adminarea/api/ajaxapi/get_fuel_prices?lang=geo");
+            var json = await new HttpClient().GetStringAsync("https://api.wissol.ge/FuelPrice");
             var fuels = System.Text.Json.JsonSerializer.Deserialize<List<FuelModel>>(json);
 
             return fuels.Select(x => new Fuel 
@@ -44,8 +44,12 @@ namespace Fuel_Georgia_Parser.Services
 
         class FuelModel
         {
+            [System.Text.Json.Serialization.JsonPropertyName("fuelType")]
             public string fuel_name { get; set; }
-            public string fuel_price { get; set; }
+
+            [System.Text.Json.Serialization.JsonPropertyName("price")]
+            public decimal fuel_price_decimal {get;set;}
+            public string fuel_price => fuel_price_decimal.ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
 
         class LocatonModel
