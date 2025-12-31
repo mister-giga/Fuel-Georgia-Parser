@@ -22,8 +22,8 @@ namespace Fuel_Georgia_Parser.Services
         {
             var url = "https://sgp.ge/sgp-backend/api/integration/info/current-prices";
             var json = await new HttpClient().GetStringAsync(url);
-            var response = System.Text.Json.JsonSerializer.Deserialize<GetCurrentPricesResponse>(json);
-            var fuels = response.Results.Select(x => new Fuel
+            var response = System.Text.Json.JsonSerializer.Deserialize<SocarPricesResponse>(json);
+            var fuels = response.GetCurrentPrices.Results.Select(x => new Fuel
             {
                 Key = ConvertFuelNameToKey(x.FuelNameGeo),
                 Name = x.FuelNameGeo,
@@ -53,26 +53,34 @@ namespace Fuel_Georgia_Parser.Services
             public string lon { get; set; }   
             public string text { get; set; }
         }
-        
-        public class GetCurrentPricesResponse
+
+        public class SocarPricesResponse
         {
+            [JsonPropertyName("GetCurrentPrices")]
+            public GetCurrentPrices GetCurrentPrices { get; set; }
+        }
+        
+        public class GetCurrentPrices
+        {
+            [JsonPropertyName("Status")]
             public string Status { get; set; }
-        
+            [JsonPropertyName("Message")]
             public string Message { get; set; }
-        
+            [JsonPropertyName("Results")]
             public List<FuelPrice> Results { get; set; }
         }
         
         public class FuelPrice
         {
+            [JsonPropertyName("ActionDate")]
             public DateTime ActionDate { get; set; }
-        
+            [JsonPropertyName("FuelNameGeo")]
             public string FuelNameGeo { get; set; }
-        
+            [JsonPropertyName("FuelNameEng")]
             public string FuelNameEng { get; set; }
-        
+            [JsonPropertyName("FuelUnitPrice")]
             public decimal FuelUnitPrice { get; set; }
-        
+            [JsonPropertyName("FuelCode")]
             public string FuelCode { get; set; }
         }
     }
