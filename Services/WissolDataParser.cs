@@ -18,15 +18,16 @@ namespace Fuel_Georgia_Parser.Services
 
         public override async Task<Fuel[]> GetActiveFuelsAsync()
         {
-            var json = await new HttpClient().GetStringAsync("https://api.wissol.ge/FuelPrice");
-            var fuels = System.Text.Json.JsonSerializer.Deserialize<List<FuelModel>>(json);
-
-            return fuels.Select(x => new Fuel 
+            var json = await new HttpClient().GetStringAsync("https://api.wissol.ge/fuelpricehistory/?days=1");
+            var response = System.Text.Json.JsonSerializer.Deserialize<FuelModel>(json);
+            var fuels = response.Data.Select(o => new Fuel()
             {
-                Name = x.fuel_name,
-                Key = ConvertFuelNameToKey(x.fuel_name),
-                Price = decimal.Parse(x.fuel_price)
-            }).ToArray();
+                Name = o.Name,
+                Key = ConvertFuelNameToKey(o.Name),
+                Price = o.Series.Length > 0 ? o.Series[0].Value : 0
+            }).Where(x => x.Price > 0).ToArray();
+
+            return fuels;
         }
 
         public async override Task<Location[]> GetLocationsAsync()
@@ -44,12 +45,24 @@ namespace Fuel_Georgia_Parser.Services
 
         class FuelModel
         {
-            [System.Text.Json.Serialization.JsonPropertyName("fuelType")]
-            public string fuel_name { get; set; }
+            [System.Text.Json.Serialization.JsonPropertyName("data")]
+            public FuelData[] Data { get; set; }
+        }
 
-            [System.Text.Json.Serialization.JsonPropertyName("price")]
-            public decimal fuel_price_decimal {get;set;}
-            public string fuel_price => fuel_price_decimal.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        class FuelData
+        {
+            [System.Text.Json.Serialization.JsonPropertyName("name")]
+            public string Name { get; set; }
+            [System.Text.Json.Serialization.JsonPropertyName("series")]
+            public Series[] Series { get; set; }
+        }
+        
+        class Series
+        {
+            [System.Text.Json.Serialization.JsonPropertyName("name")]
+            public string Name { get; set; }
+            [System.Text.Json.Serialization.JsonPropertyName("value")]
+            public decimal Value { get; set; }
         }
 
         class LocatonModel

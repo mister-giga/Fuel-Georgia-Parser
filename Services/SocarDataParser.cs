@@ -20,20 +20,17 @@ namespace Fuel_Georgia_Parser.Services
 
         public override async Task<Fuel[]> GetActiveFuelsAsync()
         {
-            var url = "https://www.sgp.ge/ge/price";
-            var web = new HtmlWeb();
-            var doc = await web.LoadFromWebAsync(url);
-
-            var table = doc.DocumentNode.Descendants("table").First();
-            var names = table.Descendants("th").Skip(1).Select(x=>x.InnerHtml.Trim()).ToArray();
-            var values = table.Descendants("tr").First().Descendants("td").Skip(1).Select(x=> decimal.Parse(x.InnerText.Trim())).ToArray();
-
-            return names.Zip(values).Select(x => new Fuel
+            var url = "https://sgp.ge/sgp-backend/api/integration/info/current-prices";
+            var json = await new HttpClient().GetStringAsync(url);
+            var response = System.Text.Json.JsonSerializer.Deserialize<SocarPricesResponse>(json);
+            var fuels = response.GetCurrentPrices.Results.Select(x => new Fuel
             {
-                Key = ConvertFuelNameToKey(x.First),
-                Name = x.First,
-                Price = x.Second
-            }).Where(x=>x.Price > 0).ToArray();
+                Key = ConvertFuelNameToKey(x.FuelNameGeo),
+                Name = x.FuelNameGeo,
+                Price = x.FuelUnitPrice
+            }).Where(x => x.Price > 0).ToArray();
+            
+            return fuels;
         }
 
         public override async Task<Location[]> GetLocationsAsync()
@@ -55,6 +52,36 @@ namespace Fuel_Georgia_Parser.Services
             [JsonPropertyName("lat")]
             public string lon { get; set; }   
             public string text { get; set; }
+        }
+
+        public class SocarPricesResponse
+        {
+            [JsonPropertyName("GetCurrentPrices")]
+            public GetCurrentPrices GetCurrentPrices { get; set; }
+        }
+        
+        public class GetCurrentPrices
+        {
+            [JsonPropertyName("Status")]
+            public string Status { get; set; }
+            [JsonPropertyName("Message")]
+            public string Message { get; set; }
+            [JsonPropertyName("Results")]
+            public List<FuelPrice> Results { get; set; }
+        }
+        
+        public class FuelPrice
+        {
+            [JsonPropertyName("ActionDate")]
+            public DateTime ActionDate { get; set; }
+            [JsonPropertyName("FuelNameGeo")]
+            public string FuelNameGeo { get; set; }
+            [JsonPropertyName("FuelNameEng")]
+            public string FuelNameEng { get; set; }
+            [JsonPropertyName("FuelUnitPrice")]
+            public decimal FuelUnitPrice { get; set; }
+            [JsonPropertyName("FuelCode")]
+            public string FuelCode { get; set; }
         }
     }
 }
