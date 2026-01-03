@@ -4,6 +4,9 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
 
@@ -11,21 +14,21 @@ jobs:
 
     steps:
     - name: Clone
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         ref: ${{ github.head_ref }}
     - run: git branch
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 5.0.x
+        dotnet-version: 10.0.x
     - name: Setup ReSharper
       run: dotnet tool install -g JetBrains.ReSharper.GlobalTools
     - name: Clean up
       run: jb cleanupcode Fuel-Georgia-Parser.sln
     - name: Check for modified files
       id: git-check
-      run: echo ::set-output name=modified::$(if git diff-index --quiet; then echo "false"; else echo "true"; fi)
+      run: echo "modified=$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)" >> "$GITHUB_OUTPUT"
     - name: Push changes
       if: steps.git-check.outputs.modified == 'true'
       run: |
