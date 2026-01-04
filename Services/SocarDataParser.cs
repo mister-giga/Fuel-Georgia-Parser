@@ -25,19 +25,12 @@ namespace Fuel_Georgia_Parser.Services
             var response = System.Text.Json.JsonSerializer.Deserialize<SocarPricesResponse>(json);
             var fuels = response.GetCurrentPrices.Results.Select(x => new Fuel
             {
-                Key = GetKey(x),
+                Key = ConvertFuelNameToKey(x.FuelNameGeo),
                 Name = x.FuelNameGeo,
                 Price = x.FuelUnitPrice
             }).Where(x => x.Price > 0).ToArray();
             
             return fuels;
-
-            static string GetKey(FuelPrice price) => price.FuelCode switch
-            {
-                "LPG" => "txevadi_airi",
-                "CNG" => "bunebrivi_airi",
-                _ => ConvertFuelNameToKey(price.FuelNameGeo),
-            };
         }
 
         public override async Task<Location[]> GetLocationsAsync()
