@@ -27,24 +27,7 @@ namespace Fuel_Georgia_Parser.Services
             yield return new("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2.1 Safari/605.1.15");
         }
 
-        public override async Task<Fuel[]> GetActiveFuelsAsync()
-        {
-            for (int i = 1; ; i++) 
-            {
-                try
-                {
-                    return await TryGetActiveFuelsAsync(i <= 5 ? "https://www.rompetrol.ge" : "https://rompetrol.bokuch.com");
-                }
-                catch(Exception)
-                {
-                    if (i > 10)
-                        throw;
-
-                    Console.WriteLine($"Failed rompetrol: N{i}");
-                    await Task.Delay(5000);
-                }
-            }
-        }
+        public override Task<Fuel[]> GetActiveFuelsAsync() => TryGetActiveFuelsAsync("https://www.rompetrol.ge");
         private async Task<Fuel[]> TryGetActiveFuelsAsync(string url)
         {
             var httpClient = new HttpClient();
