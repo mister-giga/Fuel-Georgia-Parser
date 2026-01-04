@@ -25,7 +25,7 @@ namespace Fuel_Georgia_Parser.Services
                 Name = o.Name,
                 Key = ConvertFuelNameToKey(o.Name),
                 Price = o.Series.Length > 0 ? o.Series[0].Value : 0
-            }).Where(x => x.Price > 0).ToArray();
+            }).Where(x => x.Price > 0).Reverse().ToArray();
 
             return fuels;
         }
