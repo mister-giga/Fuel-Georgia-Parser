@@ -6,4 +6,4 @@ RUN dotnet publish "Fuel-Georgia-Parser.csproj" -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/runtime:10.0
 WORKDIR /app
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "Fuel-Georgia-Parser.dll"]
+ENTRYPOINT ["dotnet", "/app/Fuel-Georgia-Parser.dll"]
